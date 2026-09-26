@@ -106,6 +106,7 @@ dist
 utils/xlsxTransform-*
 
 /.idea
+/.playwright-mcp
 
 __localStorage.json
 

@@ -31,6 +31,9 @@ jobs:
       - name: 🏗️ Build web
         run: bun build:web
 
+      - name: 🏗️ Build singlefile web
+        run: bun build:singleweb
+
       - name: 🚀 Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:

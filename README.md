@@ -4,6 +4,8 @@
 
 English | [简体中文](./README-zh_CN.md)
 
+Add cracking features and include single-file packaging.
+
 ## Environment
 
 Package Manager: `pnpm`

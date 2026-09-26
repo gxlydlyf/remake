@@ -8,11 +8,13 @@
         "dev:prod": "bunx --bun vite --mode production",
         "build": "bunx --bun vite build",
         "build:bili": "bunx --bun vite build --config vite.config.bili.ts",
+        "build:singlefile": "bunx --bun vite build --config vite.config.singlefile.ts",
         "preview": "bunx --bun vite preview",
         "lint": "bunx --bun eslint",
         "test": "bunx --bun vitest"
     },
     "dependencies": {
+        "@remake/core": "workspace:*",
         "@remake/data": "workspace:*",
         "@remake/hooks": "workspace:*",
         "@remake/thirdparty-bili-toy": "workspace:*",
@@ -29,6 +31,7 @@
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^7.1.1",
         "vite": "^8.3.0",
+        "vite-plugin-singlefile": "^2.3.3",
         "vitest": "^5.0.1"
     }
 }

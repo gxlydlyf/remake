@@ -1,0 +1,110 @@
+/* 破解版独立样式（不影响原版 UI） */
+
+/* 破解首页按钮（红色高亮） */
+.cheat-home-btn {
+    --style-color: var(--color-error);
+    --style-background: var(--base-background-color);
+    --border-color: var(--style-color);
+    --background-color: var(--style-background);
+    --text-color: var(--style-color);
+    color: var(--text-color);
+    border: var(--border-color) 0.0625rem solid;
+    background: var(--background-color);
+    font-size: calc(1.6rem * var(--ratio-font));
+    font-weight: bold;
+    height: calc(3.5rem * var(--ratio));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    width: 100%;
+}
+.cheat-home-btn:hover {
+    background: var(--style-color);
+    color: var(--style-background);
+}
+.home .controls .cheat-home-btn {
+    flex: 1 0;
+}
+
+/* 破解版说明横幅 */
+.cheat-banner {
+    color: var(--color-error);
+    font-weight: bold;
+    font-size: calc(1.1rem * var(--ratio-font));
+}
+
+/* 天赋选择页 */
+.cheat-pick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+.cheat-pick-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.cheat-pick-info {
+    color: var(--color-secondary);
+    font-weight: bold;
+}
+.cheat-btn {
+    --style-color: var(--color-secondary);
+    color: var(--style-color);
+    border: 0.0625rem solid var(--style-color);
+    background: var(--base-background-color);
+    font-weight: bold;
+    cursor: pointer;
+    box-sizing: border-box;
+    padding: 0 0.75rem;
+    height: calc(2.5rem * var(--ratio));
+    font-size: calc(1rem * var(--ratio-font));
+}
+.cheat-btn:hover {
+    background: var(--style-color);
+    color: var(--base-background-color);
+}
+
+/* 分配页无限属性提示 */
+.points-tip {
+    color: var(--color-secondary);
+    font-size: calc(0.9rem * var(--ratio-font));
+    white-space: nowrap;
+}
+
+/* 播放页倍数 */
+.cheat-speed {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 0;
+    min-width: 8rem;
+    border: 0.0625rem solid var(--base-text-color);
+    padding: 0 0.5rem;
+    height: calc(2.5rem * var(--ratio));
+    box-sizing: border-box;
+    color: var(--base-text-color);
+}
+.cheat-speed > span {
+    font-weight: bold;
+    white-space: nowrap;
+}
+.cheat-speed > input {
+    flex: 1 0;
+    min-width: 0;
+    font-weight: bold;
+    color: var(--color-error);
+}
