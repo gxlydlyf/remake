@@ -1,12 +1,20 @@
 name: Build and Deploy
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+  workflow_dispatch: # 支持手动触发
+
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
-    concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - name: 🛎️ Checkout
@@ -27,14 +35,18 @@ jobs:
 
       - name: 🏗️ Build data
         run: bun build:data
-      
+
       - name: 🏗️ Build web
         run: bun build:web
 
       - name: 🏗️ Build singlefile web
         run: bun build:singleweb
 
-      - name: 🚀 Deploy
+      - name: 🚀 Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: apps/web/dist # The folder the action should deploy.
+          path: apps/web/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
