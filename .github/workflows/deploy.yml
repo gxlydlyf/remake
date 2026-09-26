@@ -35,6 +35,6 @@ jobs:
         run: bun build:singleweb
 
       - name: 🚀 Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: actions/upload-pages-artifact@v4
         with:
-          folder: apps/web/dist # The folder the action should deploy.
+          path: apps/web/dist # The folder the action should deploy.
