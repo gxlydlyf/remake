@@ -3,7 +3,7 @@ import { toastMsg } from '@/toast'
 import './Github.css'
 
 // 破解版仓库地址
-const repo = 'https://github.com/gxlydlyf/remake'
+const repo = 'https://github.com/gxlydlyf/remake-cracked'
 
 export function GithubCheat() {
     const handleClick = () => {
