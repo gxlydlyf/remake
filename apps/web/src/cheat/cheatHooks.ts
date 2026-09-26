@@ -11,8 +11,13 @@ import {
     useGameState,
     useSetGameState,
 } from '@remake/hooks'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { pick as corePick, pull as corePull, end as coreEnd } from '@remake/core'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import {
+    pick as corePick,
+    pull as corePull,
+    end as coreEnd,
+    exclude as coreExclude,
+} from '@remake/core'
 import type { RNG } from '@remake/vitex'
 import { talents } from '@remake/data'
 
@@ -21,6 +26,64 @@ export { useSetStep } from '@remake/hooks'
 
 /** 当前已选天赋（无限选择） */
 export const useCheatPicked = () => useAtomValue(pickedAtom)
+
+/**
+ * 破解版天赋选择结果：
+ * - ok：当前操作成功（选中/取消选中）
+ * - ex：与已选天赋互斥，talent 为冲突的天赋 id
+ */
+export type CheatPickerResult =
+    | { type: 'ok' }
+    | { type: 'ex'; talent: number }
+
+/**
+ * 无限选择版 picker：不做数量限制，但与原版一致地做互斥检查。
+ * 选中某天赋前先调用核心 exclude() 判断是否与已选天赋互斥，
+ * 冲突时返回 { type: 'ex' }，由 UI 提示用户，避免选到冲突天赋后
+ * 进入游戏时无可用事件而崩溃。
+ * 返回 [picked, picker, reset]：reset 用于一键清空已选。
+ */
+export const useCheatTalentPicker = () => {
+    const [picked, setPicked] = useAtom(pickedAtom)
+    const picker = useCallback(
+        (talent: number): CheatPickerResult => {
+            const cur = picked ?? new Set<number>()
+            if (cur.has(talent)) {
+                // 已选：取消选中
+                const next = new Set(cur)
+                next.delete(talent)
+                setPicked(next)
+                return { type: 'ok' }
+            }
+            // 与原版一致：选中前检查互斥
+            const e = coreExclude(talent, cur)
+            if (e) return { type: 'ex', talent: e }
+            const next = new Set(cur)
+            next.add(talent)
+            setPicked(next)
+            return { type: 'ok' }
+        },
+        [picked, setPicked],
+    )
+    const reset = useCallback(() => setPicked(new Set()), [setPicked])
+    return [picked, picker, reset] as const
+}
+
+/**
+ * 检测一组天赋中是否存在互斥冲突，返回第一对冲突天赋 [新增, 已选]。
+ * 供提交前做最终校验，双保险防止冲突天赋进入游戏。
+ */
+export function findConflict(
+    list: Iterable<number>,
+): [number, number] | null {
+    const set = new Set<number>()
+    for (const t of list) {
+        const e = coreExclude(t, set)
+        if (e) return [t, e]
+        set.add(t)
+    }
+    return null
+}
 
 /**
  * 无限选择版 pick：直接调用核心逻辑，不做任何数量限制。
@@ -35,18 +98,22 @@ export function cheatPick(
 
 /**
  * 无限选择版提交：不校验 min/max，直接计算 replacement 并进入分配页。
+ * 提交前做最终互斥校验（双保险），返回 null 表示无冲突可继续。
  */
 export const useCheatTalentSubmit = () => {
     const picked = useAtomValue(pickedAtom)
     const setReplaced = useSetAtom(replacedAtom)
     const setStep = useSetStep()
     return useCallback(
-        (rng?: RNG) => {
+        (rng?: RNG): [number, number] | null => {
             if (!picked || picked.size < 1) {
                 throw new Error('请至少选择一个天赋')
             }
+            const conflict = findConflict(picked)
+            if (conflict) return conflict
             setReplaced(cheatPick(picked, rng))
             setStep(Step.Alloc)
+            return null
         },
         [picked, setReplaced, setStep],
     )

@@ -1,14 +1,12 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
-    useCheatPicked,
+    useCheatTalentPicker,
     useCheatTalentSubmit,
     useRarePull,
     useAllTalents,
     useSetStep,
     Step,
 } from './cheatHooks'
-import { useAtom } from 'jotai'
-import { pickedAtom } from '@remake/hooks'
 import { talents } from '@remake/data'
 import { PullCount } from '@/config'
 import { toastMsg } from '@/toast'
@@ -21,12 +19,13 @@ import './cheat.css'
  * - "10 连抽 · 稀有优先"：每次抽取一批"高稀有度"天赋
  * - "显示全部天赋"：列出所有非专属天赋供任意挑选
  * - 已选天赋无数量上限（无限选择）
+ * - 与原版一致做互斥检查：选中与已选天赋互斥的天赋时 toast 提示
  */
 export default function PickCheat() {
     const [pulled, setPulled] = useState<number[] | null>(null)
     const [showAll, setShowAll] = useState(false)
-    // 直接读写原版 pickedAtom，无数量限制
-    const [picked, setPicked] = useAtom(pickedAtom)
+    // 无限选择 + 互斥检查的 picker
+    const [picked, picker, resetPicked] = useCheatTalentPicker()
     const setStep = useSetStep()
     const rarePull = useRarePull()
     const allTalents = useAllTalents()
@@ -52,15 +51,13 @@ export default function PickCheat() {
 
     const handlePick = useCallback(
         (id: number) => {
-            setPicked(prev => {
-                const cur = prev ?? new Set<number>()
-                const next = new Set(cur)
-                if (next.has(id)) next.delete(id)
-                else next.add(id)
-                return next
-            })
+            const result = picker(id)
+            if (result.type === 'ex') {
+                const conflictName = talents.get(result.talent)?.name ?? '天赋'
+                toastMsg(`与已选天赋「${conflictName}」冲突，无法同时选择`, 'pick-toast')
+            }
         },
-        [setPicked],
+        [picker],
     )
 
     const handleSubmit = useCallback(() => {
@@ -68,17 +65,23 @@ export default function PickCheat() {
             toastMsg('请至少选择一个天赋', 'pick-toast')
             return
         }
-        // 无限选择版提交：计算 replacement（含互斥连锁）并进入分配页
-        submit()
+        // 提交前做最终互斥校验（双保险）
+        const conflict = submit()
+        if (conflict) {
+            const [newId, existId] = conflict
+            const newName = talents.get(newId)?.name ?? '天赋'
+            const existName = talents.get(existId)?.name ?? '天赋'
+            toastMsg(`天赋「${newName}」与「${existName}」冲突，请调整后重试`, 'pick-toast')
+        }
     }, [picked, submit])
 
     const handleBack = useCallback(() => {
         // 清空选择，返回首页
-        setPicked(new Set())
+        resetPicked()
         setShowAll(false)
         setPulled(null)
         setStep(Step.Idle)
-    }, [setPicked, setStep])
+    }, [resetPicked, setStep])
 
     if (!pulled && !showAll)
         return (

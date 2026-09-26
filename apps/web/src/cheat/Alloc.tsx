@@ -90,7 +90,7 @@ export default function AllocCheat() {
             </ul>
             <ul className={`alloc ${isClassic ? 'classic' : 'modify'}`}>
                 <li className="left left-inf">
-                    <span className="name">已分配点数</span>
+                    <span className="name">已分配数</span>
                     <button
                         className="font-mono"
                         onClick={() => setShowDetail(!showDetail)}
